@@ -3,6 +3,9 @@
 <pre>
 <?php
 session_start();
+require_once('../mysql_connect.php');
+$_SESSION['useremail'] = $_SESSION['user'];
+//echo $_SESSION['useremail'];
 
 if (isset($_POST['creation'])){
 	$message=NULL;
@@ -32,38 +35,34 @@ if (isset($_POST['creation'])){
 	}
 
 	$_SESSION['password']= generatePassword();
-	echo $_SESSION['password'];
+	//echo $_SESSION['password'];
 
 	if (!isset($message)){
-		echo '<fieldset> <legend> Admin Verification </legend>
-		<form method="post"> Please Enter Your Password for Verification: <p>';
-		echo '        <input type="password" name="adminpassword" > <br>
-		<input type="submit" name="verification" value="Verify">
-		</form></fieldset>';
+		$adminquery = "select employeesid, username from employees";
+		$adminresult = mysqli_query($dbc,$adminquery);
+		$num_rows=$adminresult->num_rows;
 
-		
-		
+		if (!empty($num_rows)){
+			while ($row=mysqli_fetch_array($adminresult,MYSQL_ASSOC)){
+				if ($_SESSION['userid'] == "{$row['employeesid']}" || $_SESSION['email'] == "{$row['username']}"){
+					$message.="<p>Account has already been registered!</p>";
+				} 
+			}
+			if (!isset($message)){
+				echo '<fieldset> <legend> Admin Verification </legend>
+				<form method="post"> Please Enter Your Password for Verification: <p>';
+				echo '        <input type="password" name="adminpassword" > <br>
+				<input type="submit" name="verification" value="Verify">
+				</form></fieldset>';
+			}
+		}	
 	} 
 
 }
-
-
 if (isset($message)){
 	echo '<font color="brown">'.$message. '</font>';
 }
 
-// Password should be generated here at random. 
-
-// Email and ID number should never be repeated..
-
-// When Button is clicked, if all inputs
-// are correct, the system is to Ask for admin password to verify it is the admin, 
-// if yes, the ID number and password generated will be emailed to the user registered
-// and the link for log in will be provided to them. If it is not the admin, the 
-// creation of the account will fail.
-
-// Email needed to be dlsu email or any email of the checker, whatever he/she has
-// given to the admin?
 ?>
 
 <?php
@@ -76,49 +75,26 @@ if (isset($_POST['verification'])){
 		} else {
 			$_SESSION['adminpassword']=$_POST['adminpassword']; 
 		}
-		require_once('../mysql_connect.php');
+		
 
-		// MySQL should be modified that under employees table there is a
-		// status where it should be known if admin or checker
-		// temporary query
-		/* ID NUMBER of Admin is currently hardcoded, in the future,
-		who ever is logged on, ID number should be retained and compared
-		here. */
-		$adminquery = "select employeesid, username, password from employees";
-		$adminresult = mysqli_query($dbc,$adminquery);
-		$num_rows=$adminresult->num_rows;
+		$admincheck = "select username, password from employees";
+		$checkresult = mysqli_query($dbc,$admincheck);
+		$num_rows=$checkresult->num_rows;
 
 		if (!empty($num_rows)){
-			$check = 0;
-			while ($row=mysqli_fetch_array($adminresult,MYSQL_ASSOC)){
-				//correct password here would be 'mela123'
-				if ("{$row['employeesid']}" == '11442972'  && $_SESSION['adminpassword'] == "{$row['password']}"){
-					$accountresult = mysqli_query($dbc,$adminquery);
-					$check = 2;
-
-					while ($row=mysqli_fetch_array($accountresult,MYSQL_ASSOC)){
-						if ($_SESSION['userid'] == "{$row['employeesid']}" || $_SESSION['email'] == "{$row['username']}"){
-							$message.="<p>Account has already been registered!</p>";
-						} 
-					}
-					
-				} else if ($check != 2){
-					$check = 1;
+			while ($row=mysqli_fetch_array($checkresult,MYSQL_ASSOC)){
+				//type the password in an account you have logged in
+				if ($_SESSION['useremail'] == "{$row['username']}" && $_SESSION['adminpassword'] == "{$row['password']}"){
+					$registerquery = "insert into employees(employeesid,username,name,password,deptid) VALUES
+					('{$_SESSION['userid']}','{$_SESSION['email']}','{$_SESSION['name']}','{$_SESSION['password']}','1')";
+					$registerresult=mysqli_query($dbc,$registerquery);
+					$message.="<p>Account has been successfully created!</p>";
 				}
 			}
-
-			if ($check == 1){
-				$message.="<p> Incorrect Password! </p>";
-			}
-
 			if (!isset($message)){
-				$registerquery = "insert into employees(employeesid,username,name,password,deptid) VALUES
-				('{$_SESSION['userid']}','{$_SESSION['email']}','{$_SESSION['name']}','{$_SESSION['password']}','1')";
-				$registerresult=mysqli_query($dbc,$registerquery);
-				$message.="<p>Account has been successfully created!</p>";
-			}
+				$message.="<p>Password is incorrect!";
+			}		
 		}
-
 		if (isset($message)){
 			echo '<font color="brown">'.$message. '</font>';
 		}

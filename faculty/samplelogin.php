@@ -7,14 +7,14 @@ session_start();
 if (isset($_POST['login'])){
 	$message=NULL;
 
-	if (empty($_POST['email'])){
-		$_SESSION['email']=NULL;
+	if (empty($_POST['user'])){
+		$_SESSION['user']=NULL;
 		$message.='<p>You forgot to enter your email! </p>';
-	} elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === false) {
-		$_SESSION['email']=$_POST['email']; 
+	} elseif (!filter_var($_POST['user'], FILTER_VALIDATE_EMAIL) === false) {
+		$_SESSION['user']=$_POST['user']; 
 	} else {
 		$message.='<p> Email is invalid! </p>';
-		$_SESSION['email']=FALSE;
+		$_SESSION['user']=FALSE;
 	}
 
 	if (empty($_POST['password'])){
@@ -34,8 +34,8 @@ if (isset($_POST['login'])){
 	if (!empty($num_rows)){
 
 		while ($row=mysqli_fetch_array($result,MYSQL_ASSOC)){
-			if ($_SESSION['email'] == "{$row['username']}" && $_SESSION['password'] == "{$row['password']}") 
-				header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/attendancetracker/pages/index.php");
+			if ($_SESSION['user'] == "{$row['username']}" && $_SESSION['password'] == "{$row['password']}") 
+				header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/addaccount2.php");
 			
 		}
 		$message.='Email and password do not match, please try again';
@@ -53,7 +53,7 @@ if (isset($message)){
 <fieldset> <legend> Faculty Login </legend>
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <p>
-Email: <input type="text" name="email"> <br>
+Email: <input type="text" name="user"> <br>
 Password: <input type="password" name="password"> 
 </p>
 <input type="submit" name="login" value="Log-in">
