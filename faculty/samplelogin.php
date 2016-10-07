@@ -24,21 +24,23 @@ if (isset($_POST['login'])){
 		$_SESSION['password']=$_POST['password'];
 	}
 
-	// query for calling faculty table to check if email 
+	// query for calling accounts table to check if email 
 	// and password matches
 	require_once('../mysql_connect.php');
-	$loginquery="select username, password from employees";
+	$loginquery="select email, password from accounts";
 	$result=mysqli_query($dbc,$loginquery);
 	$num_rows=$result->num_rows;
 
 	if (!empty($num_rows)){
 
 		while ($row=mysqli_fetch_array($result,MYSQL_ASSOC)){
-			if ($_SESSION['user'] == "{$row['username']}" && $_SESSION['password'] == "{$row['password']}") 
+			if ($_SESSION['user'] == "{$row['email']}" && $_SESSION['password'] == "{$row['password']}") 
 				header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/addaccount2.php");
 			
 		}
-		$message.='Email and password do not match, please try again';
+		if (!isset($message)){
+			$message.='Email and password do not match, please try again';
+		}
 		
 	}
 		

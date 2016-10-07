@@ -38,13 +38,13 @@ if (isset($_POST['creation'])){
 	//echo $_SESSION['password'];
 
 	if (!isset($message)){
-		$adminquery = "select employeesid, username from employees";
+		$adminquery = "select accountNo, email from accounts";
 		$adminresult = mysqli_query($dbc,$adminquery);
 		$num_rows=$adminresult->num_rows;
 
 		if (!empty($num_rows)){
 			while ($row=mysqli_fetch_array($adminresult,MYSQL_ASSOC)){
-				if ($_SESSION['userid'] == "{$row['employeesid']}" || $_SESSION['email'] == "{$row['username']}"){
+				if ($_SESSION['userid'] == "{$row['accountNo']}" || $_SESSION['email'] == "{$row['email']}"){
 					$message.="<p>Account has already been registered!</p>";
 				} 
 			}
@@ -55,7 +55,7 @@ if (isset($_POST['creation'])){
 				<input type="submit" name="verification" value="Verify">
 				</form></fieldset>';
 			}
-		}	
+		} 	
 	} 
 
 }
@@ -77,16 +77,16 @@ if (isset($_POST['verification'])){
 		}
 		
 
-		$admincheck = "select username, password from employees";
+		$admincheck = "select email, password from accounts";
 		$checkresult = mysqli_query($dbc,$admincheck);
 		$num_rows=$checkresult->num_rows;
 
 		if (!empty($num_rows)){
 			while ($row=mysqli_fetch_array($checkresult,MYSQL_ASSOC)){
 				//type the password in an account you have logged in
-				if ($_SESSION['useremail'] == "{$row['username']}" && $_SESSION['adminpassword'] == "{$row['password']}"){
-					$registerquery = "insert into employees(employeesid,username,name,password,deptid) VALUES
-					('{$_SESSION['userid']}','{$_SESSION['email']}','{$_SESSION['name']}','{$_SESSION['password']}','1')";
+				if ($_SESSION['useremail'] == "{$row['email']}" && $_SESSION['adminpassword'] == "{$row['password']}"){
+					$registerquery = "insert into accounts(accountno,completename,password,accountTypeNo,email) VALUES
+					('{$_SESSION['userid']}','{$_SESSION['name']}','{$_SESSION['password']}','2','{$_SESSION['email']}')";
 					$registerresult=mysqli_query($dbc,$registerquery);
 					$message.="<p>Account has been successfully created!</p>";
 				}
